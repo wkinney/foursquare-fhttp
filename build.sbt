@@ -1,26 +1,37 @@
 name := "foursquare-fhttp"
 
-version := "0.1.13"
+version := "0.1.14"
 
 organization := "com.foursquare"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.4"
 
 crossScalaVersions := Seq("2.10.4")
 
 libraryDependencies <++= (scalaVersion) { scalaVersion =>
   val v = scalaVersion match {
     case twoTen if scalaVersion.startsWith("2.10") => "_2.10"
+    case twoEleven if scalaVersion.startsWith("2.11") => "_2.11"
     case _ => "_" + scalaVersion
   }
   Seq(
-    "com.twitter"                   %  ("finagle-http" + v) % "6.22.0",
+    "com.twitter"                   %  ("finagle-http" + v) % "6.24.0",
     "commons-httpclient"            %  "commons-httpclient" % "3.1",
     "junit"                         %  "junit"              % "4.10"       % "test",
     "com.novocode"                  %  "junit-interface"    % "0.9"        % "test"
   )
 }
 
+libraryDependencies := {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    // if scala 2.11+ is used, add dependency on scala-xml module
+    case Some((2, scalaMajor)) if scalaMajor >= 11 =>
+      libraryDependencies.value ++ Seq(
+        "org.scala-lang.modules" %% "scala-xml" % "1.0.3")
+    case _ =>
+      libraryDependencies.value
+  }
+}
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
 
